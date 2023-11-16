@@ -39,17 +39,17 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:
             for name in node.names:
                 if name.name.startswith("conans."):
                     logging.debug("skipping %s which is not conan v2 compatible", recipe_file)
-                    return
+                    return 1
         if isinstance(node, ast.ImportFrom):
             if node.module and node.module.startswith("conans"):
                 logging.debug("skipping %s which is not conan v2 compatible", recipe_file)
-                return
+                return 1
 
         if isinstance(node, ast.Assign):
             for target in node.targets:
                 if isinstance(target, ast.Name) and target.id == "deprecated":
                     logging.debug("skipping %s which is deprecated", recipe_file)
-                    return
+                    return 1
 
     for node in ast.walk(tree):
         if not isinstance(node, ast.Compare):
@@ -62,6 +62,7 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:
                     print(f"[`{ast.unparse(node)}`](https://github.com/conan-io/conan-center-index/tree/master/recipes/{recipe_file}#L{node.lineno}) is always {results[0]} for versions {versions}")
             except Exception:
                 logging.warning("Error in %s:%s, %s skipping the comparison", recipe_file, node.lineno, ast.unparse(node))
+    return 0
 
 
 def main(path: str) -> int:
@@ -69,7 +70,7 @@ def main(path: str) -> int:
         path = path[0:-10]
     with open(os.path.join(path, 'config.yml'), encoding='utf-8') as file:
         config = yaml.safe_load(file)
-    versions_map:dict[str, list[str]] = {}
+    versions_map: dict[str, list[str]] = {}
     for version, version_data in config['versions'].items():
         folder = version_data['folder']
         if folder in versions_map:
@@ -87,5 +88,4 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         sys.exit(main(sys.argv[1]))
 
-    check_recipe(sys.argv[1], sys.argv[2:])
-    sys.exit()
+    sys.exit(check_recipe(sys.argv[1], sys.argv[2:]))
