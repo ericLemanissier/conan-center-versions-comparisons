@@ -3,7 +3,6 @@ import ast
 import logging
 import os
 import yaml
-from conan import ConanFile
 
 
 def node_uses_version(root: ast.AST) -> bool:
@@ -13,8 +12,8 @@ def node_uses_version(root: ast.AST) -> bool:
     return False
 
 
-def evaluate_expr(compiled, version: str) -> bool:
-    recipe_obj = ConanFile()
+def evaluate_expr(compiled, version: str, recipe_class: type) -> bool:
+    recipe_obj = recipe_class()
     recipe_obj.version = version
     return eval(
         compiled,
@@ -34,22 +33,33 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:
 
     tree = ast.parse(source)
 
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for name in node.names:
-                if name.name.startswith("conans."):
-                    logging.debug("skipping %s which is not conan v2 compatible", recipe_file)
-                    return 1
-        if isinstance(node, ast.ImportFrom):
-            if node.module and node.module.startswith("conans"):
-                logging.debug("skipping %s which is not conan v2 compatible", recipe_file)
-                return 1
+    recipe_class_name = None
 
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name) and target.id == "deprecated":
-                    logging.debug("skipping %s which is deprecated", recipe_file)
-                    return 1
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ClassDef):
+            if any(base.id == "ConanFile" for base in node.bases):
+                recipe_class_name = node.name
+                break
+
+    assert recipe_class_name
+
+    _globals = {}
+    cur_dir = os.getcwd()
+    os.chdir(os.path.dirname(recipe_file))
+    try:
+        exec(source, _globals)
+    except Exception as err:
+        logging.debug("skipping %s which is not conan v2 compatible: %s", recipe_file, err)
+        return 1
+    finally:
+        os.chdir(cur_dir)
+
+    recipe_class = _globals[recipe_class_name]
+
+    recipe_instance = recipe_class()
+    if hasattr(recipe_instance, "deprecated") and recipe_instance.deprecated is not None:
+        logging.debug("skipping %s which is deprecated:%s", recipe_file, recipe_instance.deprecated)
+        return 1
 
     for node in ast.walk(tree):
         if not isinstance(node, ast.Compare):
@@ -57,7 +67,7 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:
         if node_uses_version(node.left) or any(node_uses_version(n) for n in node.comparators):
             compiled = compile(ast.Expression(node), recipe_file, 'eval')
             try:
-                results = [evaluate_expr(compiled, v) for v in versions]
+                results = [evaluate_expr(compiled, v, recipe_class) for v in versions]
                 if all(r == results[0] for r in results):
                     print(f"[`{ast.unparse(node)}`](https://github.com/conan-io/conan-center-index/tree/master/recipes/{recipe_file}#L{node.lineno}) is always {results[0]} for versions {versions}")
             except Exception:
