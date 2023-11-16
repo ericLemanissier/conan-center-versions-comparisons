@@ -1,0 +1,74 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# This workflow integrates Pyre with GitHub's
+# Code Scanning feature.
+#
+# Pyre is a performant type checker for Python compliant with
+# PEP 484. Pyre can analyze codebases with millions of lines
+# of code incrementally – providing instantaneous feedback
+# to developers as they write code.
+#
+# See https://pyre-check.org
+
+name: Pyre
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+    contents: read
+
+jobs:
+  pyre:
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '>=3.10'
+
+      - name: Install Pyre
+        run: pip install pyre-check
+        shell: bash
+
+      - name: Install dependencies
+        run: pip install -r "requirements.txt"
+        shell: bash
+
+      - name: Set up Pyre
+        run: echo -e '\n' | pyre init
+        shell: bash
+
+      - name: Run Pyre
+        run: |
+          pyre --noninteractive --output=sarif check > sarif.json
+        shell: bash
+
+      - name: Saving results in SARIF
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: SARIF Results
+          path: sarif.json
+          if-no-files-found: ignore
+
+      - name: Upload SARIF Results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: sarif.json

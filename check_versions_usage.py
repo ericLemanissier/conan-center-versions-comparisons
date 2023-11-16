@@ -23,8 +23,8 @@ def evaluate_expr(compiled, version:str) -> bool:
         'self': recipe_obj})
 
 def check_recipe(recipe_file: str, versions: list[str]) -> None:
-    with open(recipe_file, encoding='utf-8') as f:
-        recipe_lines = f.readlines()
+    with open(recipe_file, encoding='utf-8') as file:
+        recipe_lines = file.readlines()
     source = "".join(recipe_lines)
 
     tree = ast.parse(source)
