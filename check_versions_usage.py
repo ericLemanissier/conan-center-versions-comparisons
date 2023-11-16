@@ -27,7 +27,7 @@ def evaluate_expr(compiled, version: str) -> bool:
     )
 
 
-def check_recipe(recipe_file: str, versions: list[str]) -> None:
+def check_recipe(recipe_file: str, versions: list[str]) -> int:
     with open(recipe_file, encoding='utf-8') as file:
         recipe_lines = file.readlines()
     source = "".join(recipe_lines)
@@ -41,7 +41,7 @@ def check_recipe(recipe_file: str, versions: list[str]) -> None:
                     logging.debug("skipping %s which is not conan v2 compatible", recipe_file)
                     return
         if isinstance(node, ast.ImportFrom):
-            if node.module.startswith("conans"):
+            if node.module and node.module.startswith("conans"):
                 logging.debug("skipping %s which is not conan v2 compatible", recipe_file)
                 return
 
@@ -69,9 +69,9 @@ def main(path: str) -> int:
         path = path[0:-10]
     with open(os.path.join(path, 'config.yml'), encoding='utf-8') as file:
         config = yaml.safe_load(file)
-    versions_map = {}
-    for version,v in config['versions'].items():
-        folder = v['folder']
+    versions_map:dict[str, list[str]] = {}
+    for version, version_data in config['versions'].items():
+        folder = version_data['folder']
         if folder in versions_map:
             versions_map[folder].append(version)
         else:
@@ -87,4 +87,5 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         sys.exit(main(sys.argv[1]))
 
-    sys.exit(0 if check_recipe(sys.argv[1], sys.argv[2:]) else 1)
+    check_recipe(sys.argv[1], sys.argv[2:])
+    sys.exit()
