@@ -37,13 +37,13 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:
 
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef):
-            if any(base.id == "ConanFile" for base in node.bases):
+            if any(isinstance(base, ast.Name) and base.id == "ConanFile" for base in node.bases):
                 recipe_class_name = node.name
                 break
 
     assert recipe_class_name
 
-    _globals = {}
+    _globals: dict = {}
     cur_dir = os.getcwd()
     os.chdir(os.path.dirname(recipe_file))
     try:
