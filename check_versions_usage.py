@@ -44,15 +44,14 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:
     assert recipe_class_name
 
     _globals: dict = {}
-    cur_dir = os.getcwd()
-    os.chdir(os.path.dirname(recipe_file))
+    sys.path.append(os.path.dirname(recipe_file))
     try:
         exec(source, _globals)
     except Exception as err:
         logging.debug("skipping %s which is not conan v2 compatible: %s", recipe_file, err)
         return 1
     finally:
-        os.chdir(cur_dir)
+        sys.path.remove(os.path.dirname(recipe_file))
 
     recipe_class = _globals[recipe_class_name]
 
