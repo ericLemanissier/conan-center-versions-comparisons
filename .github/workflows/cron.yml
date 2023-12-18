@@ -75,7 +75,7 @@ jobs:
           echo "This can also be viewed on https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" | tee -a body
           gh issue edit ${{ vars.ISSUE_ID }} --repo conan-io/conan-center-index --body-file body
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: my-artifact
           path: pages
