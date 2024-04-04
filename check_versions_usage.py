@@ -60,14 +60,14 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:
         logging.debug("skipping %s which is deprecated:%s", recipe_file, recipe_instance.deprecated)
         return 1
 
-    class Visitor(ast.NodeVisitor):
+    class CustomVisitor(ast.NodeVisitor):
         def visit_Compare(self, node: ast.Compare):
             if node_uses_version(node.left) or any(node_uses_version(n) for n in node.comparators):
                 compiled = compile(ast.Expression(node), recipe_file, 'eval')
                 try:
                     results = [evaluate_expr(compiled, v, recipe_class) for v in versions]
                     if all(r == results[0] for r in results):
-                        print(f"[`{ast.unparse(node)}`](https://github.com/conan-io/conan-center-index/tree/master/recipes/{recipe_file}#L{node.lineno}) is always {results[0]} for versions {versions}")
+                        print(f"[`{ast.unparse(node)}`](https://github.com/conan-io/conan-center-index/tree/master/recipes/{recipe_file}#L{node.lineno}) is always {results[0]} for versions {versions}  ")
                 except Exception:
                     logging.warning("Error in %s:%s, %s skipping the comparison", recipe_file, node.lineno, ast.unparse(node))
             self.generic_visit(node)
@@ -75,7 +75,7 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:
         def visit_Assert(self, node):
             pass
 
-    Visitor().visit(tree)
+    CustomVisitor().visit(tree)
     return 0
 
 
