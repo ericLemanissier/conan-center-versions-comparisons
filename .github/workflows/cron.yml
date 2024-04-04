@@ -8,6 +8,8 @@ on:
     - cron:  '0 * * * *'
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -65,6 +67,7 @@ jobs:
         working-directory: conan-center-index/recipes
 
       - name: post github comment
+        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN:  ${{ secrets.ISSUE_TOKEN }}
         run: |
@@ -100,6 +103,7 @@ jobs:
 
   # Deployment job
   deploy:
+    if: github.event_name != 'pull_request'
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
       pages: write      # to deploy to Pages
