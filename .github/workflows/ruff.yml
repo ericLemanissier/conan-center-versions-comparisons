@@ -1,0 +1,21 @@
+name: ruff
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v6
+    - uses: astral-sh/setup-uv@v7
+    - uses: astral-sh/ruff-action@v3
+    - name: Analysing the code with ty
+      run: |
+        uv venv
+        uv pip install -r requirements.txt
+        uvx ty check
