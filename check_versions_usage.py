@@ -69,7 +69,7 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:  # noqa: MC0001
                 try:
                     results = [evaluate_expr(compiled, v, recipe_class) for v in versions]
                     if all(r == results[0] for r in results):
-                        print(f"[`{ast.unparse(node)}`](https://github.com/ericLemanissier/cocorepo/tree/master/recipes/{recipe_file}#L{node.lineno}) is always {results[0]} for versions {versions}  ")
+                        print(f"[`{ast.unparse(node)}`](https://github.com/ericLemanissier/cocorepo/tree/HEAD/recipes/{recipe_file}#L{node.lineno}) is always {results[0]} for versions {versions}  ")
                 except Exception:  # pylint: disable=broad-exception-caught
                     logging.warning("Error in %s:%s, %s skipping the comparison", recipe_file, node.lineno, ast.unparse(node))
             self.generic_visit(node)
