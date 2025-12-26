@@ -27,7 +27,7 @@ def evaluate_expr(compiled, version: str, recipe_class: type) -> bool:
     )
 
 
-def check_recipe(recipe_file: str, versions: list[str]) -> int: # noqa: MC0001
+def check_recipe(recipe_file: str, versions: list[str]) -> int:  # noqa: MC0001
     with open(recipe_file, encoding='utf-8') as file:
         recipe_lines = file.readlines()
     source = "".join(recipe_lines)
