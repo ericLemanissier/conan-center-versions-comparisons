@@ -15,7 +15,4 @@ jobs:
     - uses: astral-sh/setup-uv@v7
     - uses: astral-sh/ruff-action@v3
     - name: Analysing the code with ty
-      run: |
-        uv venv
-        uv pip install -r requirements.txt
-        uvx ty check
+      run: uvx --with-requirements check_versions_usage.py ty check
