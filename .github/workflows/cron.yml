@@ -36,9 +36,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
-          cache: 'pip' # caching pip dependencies
-      - run: |
-          python3 -m pip install -r requirements.txt
+      
+      - uses: astral-sh/setup-uv@v7
 
       - name: Check versions usage
         run: |
@@ -53,7 +52,7 @@ jobs:
             then
               continue
             fi
-            res=$(python3 ../../check_versions_usage.py ${configyml})
+            res=$(uv run  ../../check_versions_usage.py ${configyml})
             if [[ -z "$res" ]]
             then
               continue

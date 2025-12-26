@@ -1,3 +1,10 @@
+# /// script
+# dependencies = [
+#   "pyyaml==6.0.3",
+#   "conan==2.24.0",
+# ]
+# ///
+
 import sys
 import ast
 import logging
