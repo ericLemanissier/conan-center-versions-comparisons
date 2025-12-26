@@ -67,7 +67,7 @@ jobs:
         working-directory: cocorepo/recipes
 
       - name: post github comment
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && vars.ISSUE_ID != ''
         env:
           GH_TOKEN:  ${{ secrets.ISSUE_TOKEN }}
         run: |
