@@ -15,6 +15,7 @@ def node_uses_version(root: ast.AST) -> bool:
 def evaluate_expr(compiled, version: str, recipe_class: type) -> bool:
     recipe_obj = recipe_class()
     recipe_obj.version = version
+    # pylint: disable=eval-used
     return eval(
         compiled,
         {
@@ -26,7 +27,7 @@ def evaluate_expr(compiled, version: str, recipe_class: type) -> bool:
     )
 
 
-def check_recipe(recipe_file: str, versions: list[str]) -> int:
+def check_recipe(recipe_file: str, versions: list[str]) -> int: # noqa: MC0001
     with open(recipe_file, encoding='utf-8') as file:
         recipe_lines = file.readlines()
     source = "".join(recipe_lines)
@@ -46,8 +47,9 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:
     _globals: dict = {}
     sys.path.append(os.path.dirname(recipe_file))
     try:
+        # pylint: disable=exec-used
         exec(source, _globals)
-    except Exception as err:
+    except Exception as err:  # pylint: disable=broad-exception-caught
         logging.debug("skipping %s which is not conan v2 compatible: %s", recipe_file, err)
         return 1
     finally:
@@ -61,18 +63,18 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:
         return 1
 
     class CustomVisitor(ast.NodeVisitor):
-        def visit_Compare(self, node: ast.Compare):
+        def visit_Compare(self, node: ast.Compare):  # pylint: disable=invalid-name
             if node_uses_version(node.left) or any(node_uses_version(n) for n in node.comparators):
                 compiled = compile(ast.Expression(node), recipe_file, 'eval')
                 try:
                     results = [evaluate_expr(compiled, v, recipe_class) for v in versions]
                     if all(r == results[0] for r in results):
                         print(f"[`{ast.unparse(node)}`](https://github.com/ericLemanissier/cocorepo/tree/master/recipes/{recipe_file}#L{node.lineno}) is always {results[0]} for versions {versions}  ")
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     logging.warning("Error in %s:%s, %s skipping the comparison", recipe_file, node.lineno, ast.unparse(node))
             self.generic_visit(node)
 
-        def visit_Assert(self, node):
+        def visit_Assert(self, node):  # pylint: disable=invalid-name
             pass
 
     CustomVisitor().visit(tree)
