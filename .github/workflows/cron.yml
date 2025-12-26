@@ -30,12 +30,12 @@ jobs:
       - name: Checkout CCI
         uses: actions/checkout@v4
         with:
-          repository: conan-io/conan-center-index
-          path: conan-center-index
+          repository: ericLemanissier/cocorepo
+          path: cocorepo
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.14"
           cache: 'pip' # caching pip dependencies
       - run: |
           python3 -m pip install -r requirements.txt
@@ -58,16 +58,16 @@ jobs:
             then
               continue
             fi
-            echo "## [${d}](https://github.com/conan-io/conan-center-index/tree/master/recipes/${d})" | tee -a $outfile $GITHUB_STEP_SUMMARY
+            echo "## [${d}](https://github.com/ericLemanissier/cocorepo/tree/master/recipes/${d})" | tee -a $outfile $GITHUB_STEP_SUMMARY
             echo "${res}" | tee -a $outfile $GITHUB_STEP_SUMMARY
             echo "" | tee -a $outfile $GITHUB_STEP_SUMMARY
 
           done
 
-        working-directory: conan-center-index/recipes
+        working-directory: cocorepo/recipes
 
       - name: post github comment
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && vars.ISSUE_ID != ''
         env:
           GH_TOKEN:  ${{ secrets.ISSUE_TOKEN }}
         run: |
@@ -76,7 +76,7 @@ jobs:
           cat pages/index.md | tee -a body
           echo "" | tee -a body
           echo "This can also be viewed on https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" | tee -a body
-          gh issue edit ${{ vars.ISSUE_ID }} --repo conan-io/conan-center-index --body-file body
+          gh issue edit ${{ vars.ISSUE_ID }} --repo ericLemanissier/cocorepo --body-file body
 
       - uses: actions/upload-artifact@v4
         with:
