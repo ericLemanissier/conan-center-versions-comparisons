@@ -25,10 +25,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Checkout CCI
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ericLemanissier/cocorepo
           path: cocorepo
