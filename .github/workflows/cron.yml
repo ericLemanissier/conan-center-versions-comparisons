@@ -58,7 +58,7 @@ jobs:
             then
               continue
             fi
-            echo "## [${d}](https://github.com/ericLemanissier/cocorepo/tree/master/recipes/${d})" | tee -a $outfile $GITHUB_STEP_SUMMARY
+            echo "## [${d}](https://github.com/ericLemanissier/cocorepo/tree/HEAD/recipes/${d})" | tee -a $outfile $GITHUB_STEP_SUMMARY
             echo "${res}" | tee -a $outfile $GITHUB_STEP_SUMMARY
             echo "" | tee -a $outfile $GITHUB_STEP_SUMMARY
 
