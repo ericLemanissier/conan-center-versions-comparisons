@@ -11,6 +11,17 @@ import logging
 import os
 import yaml
 
+import tokenize
+
+def ignored_lines(source: str):
+    ignored = set()
+
+    with tokenize.open(source) as f:
+        tokens = tokenize.generate_tokens(f.readline)
+        for tok in tokens:
+            if tok.type == tokenize.COMMENT and any(marker in tok.string for marker in ["pylint: disable=conan-unreachable-upper-version", "pylint: disable=conan-condition-evals-to-constant"]):
+                ignored.add(tok.start[0])
+    return ignored
 
 def node_uses_version(root: ast.AST) -> bool:
     for node in ast.walk(root):
@@ -70,7 +81,12 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:  # noqa: MC0001
         return 1
 
     class CustomVisitor(ast.NodeVisitor):
+        def __init__(self, ignored):
+            self.ignored = ignored
+
         def visit_Compare(self, node: ast.Compare):  # pylint: disable=invalid-name
+            if node.lineno in self.ignored:
+                return
             if node_uses_version(node.left) or any(node_uses_version(n) for n in node.comparators):
                 compiled = compile(ast.Expression(node), recipe_file, 'eval')
                 try:
@@ -84,7 +100,7 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:  # noqa: MC0001
         def visit_Assert(self, node):  # pylint: disable=invalid-name
             pass
 
-    CustomVisitor().visit(tree)
+    CustomVisitor(ignored_lines(recipe_file)).visit(tree)
     return 0
 
 
