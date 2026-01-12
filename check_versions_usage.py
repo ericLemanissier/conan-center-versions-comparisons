@@ -13,6 +13,13 @@ import yaml
 
 import tokenize
 
+import conan
+import conan.tools
+import conan.tools.scm
+from conan import tools
+from conan.tools import scm
+from conan.tools.scm import Version
+
 def ignored_lines(source: str):
     ignored = set()
 
@@ -37,9 +44,6 @@ def evaluate_expr(compiled, version: str, recipe_class: type) -> bool:
     return eval(
         compiled,
         {
-            "Version": __import__("conan").tools.scm.Version,
-            "scm": __import__("conan").tools.scm,
-            "tools": __import__("conan").tools,
             "self": recipe_obj,
         },
     )
