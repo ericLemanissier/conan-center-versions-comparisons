@@ -38,8 +38,7 @@ def evaluate_expr(compiled, version: str, recipe_class: type) -> bool:
         compiled,
         {
             "Version": __import__("conan.tools.scm").Version,
-            "scm": __import__("conan.tools").scm,
-            "tools": __import__("conan").tools,
+            "scm": __import__("conan.tools.scm"),
             "self": recipe_obj,
         },
     )
