@@ -12,7 +12,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v6
-    - uses: astral-sh/setup-uv@v8.1.0
+    - uses: astral-sh/setup-uv@v8.2.0
     - uses: astral-sh/ruff-action@v4.0.0
     - name: Analysing the code with ty
       run: uvx --with-requirements check_versions_usage.py ty check
