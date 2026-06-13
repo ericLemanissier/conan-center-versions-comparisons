@@ -1,7 +1,7 @@
 # /// script
 # dependencies = [
 #   "pyyaml==6.0.3",
-#   "conan==2.29.0",
+#   "conan==2.29.1",
 # ]
 # ///
 
