@@ -32,12 +32,12 @@ jobs:
         with:
           repository: ericLemanissier/cocorepo
           path: cocorepo
-
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.14"
       
       - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          activate-environment: true
+
+      - run: uv sync --locked --no-dev
 
       - name: Check versions usage
         run: |
@@ -52,7 +52,7 @@ jobs:
             then
               continue
             fi
-            res=$(uv run  ../../check_versions_usage.py ${configyml})
+            res=$(uv run  --no-dev ../../check_versions_usage.py ${configyml})
             if [[ -z "$res" ]]
             then
               continue

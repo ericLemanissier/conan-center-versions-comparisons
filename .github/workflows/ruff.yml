@@ -13,6 +13,10 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - uses: astral-sh/setup-uv@v9.0.0
+      with:
+        activate-environment: true
+
+    - run: uv sync --locked
     - uses: astral-sh/ruff-action@v4.1.0
     - name: Analysing the code with ty
-      run: uvx --with-requirements check_versions_usage.py ty check
+      run: uv run ty check

@@ -1,19 +1,17 @@
-# /// script
-# dependencies = [
-#   "pyyaml==6.0.3",
-#   "conan==2.31.1",
-# ]
-# ///
-
-import sys
 import ast
 import logging
 import os
+import sys
+import tokenize
+from typing import TYPE_CHECKING
+
 import yaml
 
-import tokenize
+if TYPE_CHECKING:
+    from types import CodeType
 
-def ignored_lines(source: str):
+
+def ignored_lines(source: str) -> set[int]:
     ignored = set()
 
     with tokenize.open(source) as f:
@@ -30,7 +28,7 @@ def node_uses_version(root: ast.AST) -> bool:
     return False
 
 
-def evaluate_expr(compiled, version: str, recipe_class: type) -> bool:
+def evaluate_expr(compiled: CodeType, version: str, recipe_class: type) -> bool:
     recipe_obj = recipe_class()
     recipe_obj.version = version
     # pylint: disable=eval-used
@@ -44,8 +42,8 @@ def evaluate_expr(compiled, version: str, recipe_class: type) -> bool:
     )
 
 
-def check_recipe(recipe_file: str, versions: list[str]) -> int:  # noqa: MC0001
-    with open(recipe_file, encoding='utf-8-sig') as file:
+def check_recipe(recipe_file: str, versions: list[str]) -> int:
+    with open(recipe_file, encoding="utf-8-sig") as file:
         recipe_lines = file.readlines()
     source = "".join(recipe_lines)
 
@@ -54,10 +52,9 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:  # noqa: MC0001
     recipe_class_name = None
 
     for node in ast.walk(tree):
-        if isinstance(node, ast.ClassDef):
-            if any(isinstance(base, ast.Name) and base.id == "ConanFile" for base in node.bases):
-                recipe_class_name = node.name
-                break
+        if isinstance(node, ast.ClassDef) and any(isinstance(base, ast.Name) and base.id == "ConanFile" for base in node.bases):
+            recipe_class_name = node.name
+            break
 
     assert recipe_class_name
 
@@ -80,14 +77,14 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:  # noqa: MC0001
         return 1
 
     class CustomVisitor(ast.NodeVisitor):
-        def __init__(self, ignored):
+        def __init__(self, ignored: set[int]) -> None:
             self.ignored = ignored
 
-        def visit_Compare(self, node: ast.Compare):  # pylint: disable=invalid-name
+        def visit_Compare(self, node: ast.Compare) -> None:
             if node.lineno in self.ignored:
                 return
             if node_uses_version(node.left) or any(node_uses_version(n) for n in node.comparators):
-                compiled = compile(ast.Expression(node), recipe_file, 'eval')
+                compiled = compile(ast.Expression(node), recipe_file, "eval")
                 try:
                     results = [evaluate_expr(compiled, v, recipe_class) for v in versions]
                     if all(r == results[0] for r in results):
@@ -96,7 +93,7 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:  # noqa: MC0001
                     logging.exception("Error in %s:%s, %s skipping the comparison", recipe_file, node.lineno, ast.unparse(node))
             self.generic_visit(node)
 
-        def visit_Assert(self, node):  # pylint: disable=invalid-name
+        def visit_Assert(self, node: ast.AST) -> None:
             pass
 
     CustomVisitor(ignored_lines(recipe_file)).visit(tree)
@@ -104,13 +101,13 @@ def check_recipe(recipe_file: str, versions: list[str]) -> int:  # noqa: MC0001
 
 
 def main(path: str) -> int:
-    if path.endswith('config.yml'):
+    if path.endswith("config.yml"):
         path = path[0:-10]
-    with open(os.path.join(path, 'config.yml'), encoding='utf-8') as file:
+    with open(os.path.join(path, "config.yml"), encoding="utf-8") as file:
         config = yaml.safe_load(file)
     versions_map: dict[str, list[str]] = {}
-    for version, version_data in config['versions'].items():
-        folder = version_data['folder']
+    for version, version_data in config["versions"].items():
+        folder = version_data["folder"]
         if folder in versions_map:
             versions_map[folder].append(version)
         else:
@@ -122,7 +119,7 @@ def main(path: str) -> int:
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        sys.exit(main('.'))
+        sys.exit(main("."))
     if len(sys.argv) == 2:
         sys.exit(main(sys.argv[1]))
 
