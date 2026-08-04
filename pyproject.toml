@@ -1,0 +1,24 @@
+[project]
+name = "conan-center-versions-comparisons"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "ericLemanissier", email = "ericLemanissier@users.noreply.github.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+   "pyyaml==6.0.3",
+   "conan==2.31.1"
+]
+
+[dependency-groups]
+dev = [
+    "pyre-check==0.9.25",
+    "ruff==0.16.1",
+    "ty==0.0.66",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["LOG015", "DTZ006", "PLR2004", "E501", "D101", "D107", "D102", "C901", "ASYNC230", "D103", "N802", "PLR0912", "T201", "D100", "CPY001", "D104", "S101", "PT018", "PTH123", "PTH118", "PT028", "PTH120", "BLE001", "S102", "S307"
+]
