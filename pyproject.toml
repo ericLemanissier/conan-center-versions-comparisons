@@ -15,7 +15,7 @@ dependencies = [
 dev = [
     "pyre-check==0.9.25",
     "ruff==0.16.1",
-    "ty==0.0.68",
+    "ty==0.0.69",
 ]
 
 [tool.ruff.lint]
