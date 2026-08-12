@@ -37,7 +37,7 @@ jobs:
         with:
           submodules: true
       
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@v10.0.0
         with:
           activate-environment: true
 
