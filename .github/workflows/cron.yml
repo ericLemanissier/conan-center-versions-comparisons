@@ -39,7 +39,7 @@ jobs:
           repository: ericLemanissier/cocorepo
           path: cocorepo
       
-      - uses: astral-sh/setup-uv@v10.0.0
+      - uses: astral-sh/setup-uv@v10.0.1
         with:
           activate-environment: true
 
