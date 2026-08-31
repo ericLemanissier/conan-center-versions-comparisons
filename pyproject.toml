@@ -8,7 +8,7 @@ authors = [
 requires-python = ">=3.14"
 dependencies = [
    "pyyaml==6.0.3",
-   "conan==2.31.2"
+   "conan==2.32.0"
 ]
 
 [dependency-groups]
