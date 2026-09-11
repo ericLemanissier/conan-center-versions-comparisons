@@ -14,7 +14,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pyre-check==0.10.0",
-    "ruff==0.16.6",
+    "ruff==0.16.7",
     "ty==0.0.80",
 ]
 
