@@ -165,15 +165,15 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "conan", specifier = "==2.33.0" },
-    { name = "pyyaml", specifier = "==6.0.3" },
+    { name = "conan", specifier = "~=2.33" },
+    { name = "pyyaml", specifier = "~=6.0" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "pyre-check", specifier = "==0.10.0" },
-    { name = "ruff", specifier = "==0.16.10" },
-    { name = "ty", specifier = "==0.0.85" },
+    { name = "pyre-check", specifier = "<1" },
+    { name = "ruff", specifier = "<1" },
+    { name = "ty", specifier = "<1" },
 ]
 
 [[package]]
