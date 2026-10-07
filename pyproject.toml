@@ -7,15 +7,15 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
-   "pyyaml==6.0.3",
-   "conan==2.33.0"
+   "pyyaml~=6.0",
+   "conan~=2.33"
 ]
 
 [dependency-groups]
 dev = [
-    "pyre-check==0.10.0",
-    "ruff==0.16.10",
-    "ty==0.0.85",
+    "pyre-check<1",
+    "ruff<1",
+    "ty<1",
 ]
 
 [tool.ruff.lint]
